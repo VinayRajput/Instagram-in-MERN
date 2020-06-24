@@ -9,7 +9,14 @@ const NavBar = () => {
       return [
         <li key="1"><Link to="/profile">Profile</Link></li>,
         <li key="2"><Link to="/createPost">Create Post</Link></li>,
-        <li key="3"><Link to="/following">Following</Link></li>,
+        <li key="3">
+        {
+          (state && !!state.following.length) 
+          ?  
+          <Link to="/following">Following</Link>
+          :    ""
+        }
+        </li>,
         <li key="4"><Link to="/#" onClick={() => {
             localStorage.clear();
             dispatch({ type: "CLEAR" });
