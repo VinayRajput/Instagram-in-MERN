@@ -26,7 +26,7 @@ const UserProfile = (props) => {
           console.log('data', data);
           setProfile(data);
           let user = JSON.parse(localStorage.getItem("user"));
-          if (data.user.followers.includes(user.id)) {
+          if (user && data.user.followers.includes(user.id)) {
             isItFollowing(true);
             Util.toggleClass(followBtn.current, 'red', 'blue');
           }
@@ -117,7 +117,7 @@ const UserProfile = (props) => {
                   <img alt="" src={userProfile.user.userPic} />
                 </div>
                 <h4 className="card-title">{userProfile.user.name ? userProfile.user.name : "Loading..."}
-                  {(state.id !== userProfile.user._id) ?
+                  {(state && state.id !== userProfile.user._id) ?
                     <button ref={followBtn} className="btn waves-effect waves-light blue" onClick={follow}>
                       {
                         (following)
@@ -165,7 +165,7 @@ const UserProfile = (props) => {
                         <div className="card-content">
                           {/* onClick={(e) => {e.preventDefault(); toggleLike(item._id, item.postedBy._id, e.target)}} */}
                           <span className="pointer"  >
-                            <i className="material-icons" data-state-id={state.id} data-liked={!!item.likes.includes(state.id)} >favorite</i>
+                            <i className="material-icons" data-state-id={state ? state.id : ""} data-liked={state ? !!item.likes.includes(state.id) : ""} >favorite</i>
                           </span>
 
                           <h6>{item.likes.length} likes</h6>

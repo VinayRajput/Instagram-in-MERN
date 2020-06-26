@@ -5,7 +5,7 @@ const Post = mongoose.model("Post");
 const User = mongoose.model("User");
 const authenticateUser = require("../middleware/authenticateUser");
 
-Router.get("/user/:id", authenticateUser, (req, res) => {
+Router.get("/user/:id", (req, res) => {
   User.findOne({ _id: req.params.id })
     .select("-password")
     .then(user => {

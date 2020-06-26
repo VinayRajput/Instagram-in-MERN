@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const Post = mongoose.model("Post");
 const authenticateUser = require("../middleware/authenticateUser");
 
-Router.get("/allPosts", authenticateUser, (req, res) => {
+Router.get("/allPosts", (req, res) => {
    Post.find()
       .populate("postedBy", "_id name email")
       .populate("comments.postedBy", "_id name")
@@ -16,7 +16,7 @@ Router.get("/allPosts", authenticateUser, (req, res) => {
          console.log(err);
       })
 })
-   
+
 Router.get("/getSubsribedPosts", authenticateUser, (req, res) => {
    Post.find({ postedBy: { $in: req.user.following } })
       .populate("postedBy", "_id name email")

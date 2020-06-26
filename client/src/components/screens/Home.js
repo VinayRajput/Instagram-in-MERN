@@ -27,6 +27,9 @@ const Home = () => {
    }, []);
 
    const toggleLike = (id, postedBy, obj) => {
+      if(!state){
+         return M.toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
+      }
       let toggled = (obj.dataset.liked === "true") ? false : true;
       fetch("/toggleLike", {
          method: "PUT",
@@ -55,6 +58,10 @@ const Home = () => {
    }
 
    const makeComment = (textField, postId) => {
+      if(!state){
+         return M.toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
+      }
+
       fetch("/comment", {
          method: "PUT",
          headers: {
@@ -113,7 +120,7 @@ const Home = () => {
 
    const showListings = () => {
 
-      if (!!localStorage.getItem("jwt")) {
+      if (!!listing.length) {
          return (
             listing.map((item, key) => {
                return (
@@ -121,7 +128,7 @@ const Home = () => {
                      <div className="card home-card">
                         <div className="card-content">
                            {
-                              (item.postedBy._id === state.id)
+                              (state && item.postedBy._id === state.id)
                                  ?
                                  <button className="material-icons right red-text" onClick={(e) => deletePost(e, item._id)} >delete</button>
                                  : ""
@@ -133,18 +140,22 @@ const Home = () => {
                         </div>
                         <div className="card-content">
                            <span className="pointer" onClick={(e) => { e.preventDefault(); toggleLike(item._id, item.postedBy._id, e.target) }} >
-                              <i className="material-icons" data-state-id={state.id} data-liked={!!item.likes.includes(state.id)} >favorite</i>
+                              <i className="material-icons" data-state-id={state ? state.id : '' } data-liked={state ? !!item.likes.includes(state.id) : ''} >favorite</i>
                            </span>
 
                            <h6>{item.likes.length} likes</h6>
                            <h6>{item.title}</h6>
                            <p>By
                               {
+                                 (state) 
+                                    ?
+
                                  (item.postedBy._id !== state.id)
                                     ?
                                     <Link to={"/profile/" + item.postedBy._id}> {item.postedBy.name}</Link>
                                     :
                                     <Link to="/profile/"> {item.postedBy.name}</Link>
+                                 : <Link to={"/profile/" + item.postedBy._id}> {item.postedBy.name}</Link>
                               }
 
                            </p>
@@ -177,7 +188,7 @@ const Home = () => {
             })
          )
       } else {
-         history.push("/login");
+         return <h1> Loading...</h1>
       }
    }
    return (<div>
