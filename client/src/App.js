@@ -12,6 +12,7 @@ import UserProfile from './components/screens/UserProfile';
 import Following from './components/screens/Following';
 import ResetPassword from './components/screens/ResetPassword';
 import ChangePassword from './components/screens/ChangePassword';
+import ConfirmEmail from './components/screens/ConfirmEmail';
 
 
 export const UserContext = createContext();
@@ -41,6 +42,7 @@ const Routing = () => {
     <Route path="/following/" exact component={Following} /> 
     <Route path="/resetPassword/" exact component={ResetPassword} /> 
     <Route path="/resetPassword/:token" component={ChangePassword} /> 
+    <Route path="/confirmEmail/:token" component={ConfirmEmail} /> 
   </Switch>);
 }
 function App () {

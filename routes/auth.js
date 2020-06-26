@@ -30,6 +30,11 @@ router.post("/signin", (req, res) => {
          if (!user) {
             return res.status(422).json({ error: emailPassErrMsg });
          }
+
+         if (!user.activated) {
+            return res.status(422).json({ error: `Your email id ${user.email} is not confirmed, please confirm your email id` });
+         }
+
          bcrypt.compare(password, user.password)
             .then(passwordMatched => {
                if (passwordMatched) {
@@ -68,28 +73,35 @@ router.post("/signup", (req, res) => {
          }
          bcrypt.hash(password, 12)
             .then((hashedPassword) => {
-               const user = new User({
-                  email,
-                  password: hashedPassword,
-                  name
-               })
+               crypto.randomBytes(32, (err, buffer) => {
+                  if (err) console.log(err)
+                  const token = buffer.toString("hex");
+                  const user = new User({
+                     email,
+                     password: hashedPassword,
+                     name,
+                     resetToken : token
+                  })
 
-               user.userPic = userPic;
-               user.save()
-                  .then((user) => {
-                     transporter.sendMail({
-                        to: email,
-                        from: SERVER_EMAIL,
-                        "reply-to": "no-reply@an-instagram-clone.com",
-                        subject: "An-Instagram: Welcome to An Instagram clone",
-                        html: "<h1> Welcome to An Instagram clone</h1>"
-                     }).then((result) => {
-                        res.json({ message: "saved successfully", sendMailResult: result })
-                     })
+                  user.userPic = userPic;
+                  user.save()
+                     .then((user) => {
+                        transporter.sendMail({
+                           to: email,
+                           from: SERVER_EMAIL,
+                           "reply-to": "no-reply@an-instagram-clone.com",
+                           subject: "An-Instagram: Welcome to An Instagram clone",
+                           html: `<h1> Welcome to An Instagram clone</h1>
+                                    <a href="${BASE_URL}/confirmEmail/${token}">Click here to confirm your email id</a>
+                                 `
+                        }).then((result) => {
+                           res.json({ message: "Thanks for signing up, please confirm your emali", sendMailResult: result })
+                        })
 
-                  }).catch(err => {
-                     console.log(err);
-                  });
+                     }).catch(err => {
+                        console.log(err);
+                     });
+               });
             });
 
       }).catch(err => {
@@ -146,6 +158,42 @@ router.post("/changePassword", (req, res) => {
       return res.status(422).json({ message: "Please enter a password to change." })
    }
 })
+
+
+router.post("/emailConfirmation", (req, res) => {
+   const { token } = req.body
+   User.findOne({ resetToken: token })
+      .select("-password")
+      .then(user => {
+         if (!user) {
+            return res.status(422).json({ "error": "invalid" })
+         }
+         user.resetToken = undefined;
+         user.expireToken = undefined;
+         user.activated = true;
+         user.save()
+            .then((user) => {
+               transporter.sendMail({
+                  to: user.email,
+                  from: SERVER_EMAIL,
+                  "reply-to": "no-reply@an-instagram-clone.com",
+                  subject: "An-Instagram: Thanks for confirming your email id ",
+                  html: `<h2> You have successfully confirmed your email id </h2>`
+               }).then((result) => {
+                  return res.json({ message: "Succesfully confirmed your email id", status: "success", sendMailResult: result })
+               }).catch(e => {
+                  console.log(err);
+               })
+
+            }).catch(err => {
+               console.log(err);
+            });
+      })
+   if (req.body.password === "") {
+      return res.status(422).json({ message: "Please enter a password to change." })
+   }
+})
+
 router.post("/resetPassword", (req, res) => {
    crypto.randomBytes(32, (err, buffer) => {
       if (err) console.log(err)
@@ -174,5 +222,7 @@ router.post("/resetPassword", (req, res) => {
          })
    })
 })
+
+
 
 module.exports = router;
