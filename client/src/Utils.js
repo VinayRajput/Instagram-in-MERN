@@ -1,7 +1,8 @@
 const Util = {
   postMethod: (url, data, hdr) => {
     const headers = hdr || {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization":"Bearer "+localStorage.getItem("user")
     }
     return fetch(url, {
       method: "POST",
@@ -22,13 +23,14 @@ const Util = {
     return msg
   },
   toggleClass: (el, toAdd, toRemove) => {
+    if(!el) return false;
     let classes = el.className.split(" ");
     if (el.className.indexOf(toAdd) === -1) {
       classes.push(toAdd);
     }
     if (toRemove) {
       classes = classes.filter((clas) => {
-        return (clas != toRemove)
+        return (clas !== toRemove)
       })
     }
     classes = classes.join(" ");

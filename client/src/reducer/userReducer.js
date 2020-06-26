@@ -10,7 +10,7 @@ export const reducer = (state, action) => {
     case "UPDATE":
       localStorage.setItem("user",JSON.stringify(action.payload));
       return action.payload
-    case "DEFAULT":
+    default:
       return state 
     /* 
     case "UPDATE":

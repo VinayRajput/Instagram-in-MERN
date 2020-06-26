@@ -58,7 +58,7 @@ const Profile = () => {
                         <img alt="" src={(state && state.userPic) ? state.userPic : ""} />
                      </div>
                      <div className="updatePicButton">
-                        <input type="file" style={{ opacity: 0, zIndex: 2, position: "absolute", opacity: 0, display: "block", width: 146, cursor: "pointer !important" }} className="btn btn-flat btn-small" onChange={(e) => {
+                        <input type="file" style={{ opacity: 0, zIndex: 2, position: "absolute", display: "block", width: 146, cursor: "pointer !important" }} className="btn btn-flat btn-small" onChange={(e) => {
                            updatePic(e.target.files[0])
                         }} />
                         <button className="btn btn-flat btn-small wave-effect waves-light grey light-3 middle-align"

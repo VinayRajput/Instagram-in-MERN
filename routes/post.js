@@ -8,6 +8,7 @@ Router.get("/allPosts", authenticateUser, (req, res) => {
    Post.find()
       .populate("postedBy", "_id name email")
       .populate("comments.postedBy", "_id name")
+      .sort("-createdAt")
       .then(results => {
          res.json({ posts: results });
       })
@@ -15,11 +16,12 @@ Router.get("/allPosts", authenticateUser, (req, res) => {
          console.log(err);
       })
 })
-
+   
 Router.get("/getSubsribedPosts", authenticateUser, (req, res) => {
    Post.find({ postedBy: { $in: req.user.following } })
       .populate("postedBy", "_id name email")
       .populate("comments.postedBy", "_id name")
+      .sort("-createdAt")
       .then(results => {
          res.json({ posts: results });
       })
@@ -32,6 +34,7 @@ Router.get("/myPosts", authenticateUser, (req, res) => {
    Post.find({ postedBy: req.user._id })
       .populate("postedBy", "_id name email")
       .populate("comments.postedBy", "_id name")
+      .sort("-createdAt")
       .then(results => {
          res.json({ myPosts: results });
       })
@@ -39,6 +42,7 @@ Router.get("/myPosts", authenticateUser, (req, res) => {
          console.log(err);
       })
 })
+
 Router.post("/createPost", authenticateUser, (req, res) => {
    const { title, body, pic } = req.body;
    if (!title || !body || !pic) {
@@ -128,6 +132,5 @@ Router.put("/comment", authenticateUser, (req, res) => {
          return res.json(result);
       });
 });
-
 
 module.exports = Router;

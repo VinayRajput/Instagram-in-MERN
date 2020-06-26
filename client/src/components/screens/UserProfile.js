@@ -25,8 +25,8 @@ const UserProfile = (props) => {
         } else {
           console.log('data', data);
           setProfile(data);
-          let user  = JSON.parse(localStorage.getItem("user"));
-          if(data.user.followers.includes(user.id)){
+          let user = JSON.parse(localStorage.getItem("user"));
+          if (data.user.followers.includes(user.id)) {
             isItFollowing(true);
             Util.toggleClass(followBtn.current, 'red', 'blue');
           }
@@ -36,8 +36,8 @@ const UserProfile = (props) => {
     return function cleanUp () {
       abortController.abort();
     }
-  }, []);
-  
+  }, [userid]);
+
   /* useEffect(() => {
     console.log('state',state, userProfile.user.followers)
     if(userProfile.user.toString !=="{}" && userProfile.user.followers.include(state.id)) 
@@ -56,17 +56,17 @@ const UserProfile = (props) => {
       followUser()
   }
 
-  const updateUsers=(data)=>{
+  const updateUsers = (data) => {
     data.loggedInUser.id = data.loggedInUser._id;
     data.followedUser.id = data.followedUser._id;
-    setProfile((prevState)=>{
-      return{
+    setProfile((prevState) => {
+      return {
         ...prevState,
-        user:data.followedUser
+        user: data.followedUser
       }
     });
     data.loggedInUser.id = data.loggedInUser._id;
-    dispatch({type:"UPDATE",payload:data.loggedInUser})
+    dispatch({ type: "UPDATE", payload: data.loggedInUser })
   }
 
   const followUser = () => {
@@ -78,8 +78,8 @@ const UserProfile = (props) => {
       },
       body: JSON.stringify({ followId: userid })
     })
-    .then(res => res.json())
-    .then(data => {
+      .then(res => res.json())
+      .then(data => {
         console.log(data);
         isItFollowing(true);
         updateUsers(data);
@@ -108,28 +108,30 @@ const UserProfile = (props) => {
   return (
     (!userProfile.user.name) ? <h4 className="center-align">Loading...</h4> :
       <div>
+
         <div className="row">
           <div className="col s8 push-s2">
             <div className="card">
-              <div className="row">
-                <div className="col s4  ">
-                  <div className="card-image profile ">
-                    <img alt="" src="https://instagram.fdel20-1.fna.fbcdn.net/v/t51.2885-15/e35/97882461_696728487772904_5761479277429123452_n.jpg?_nc_ht=instagram.fdel20-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=P_F1dr0VAyQAX8K5JOE&oh=270970491869457f9a8f2f8cc31389f5&oe=5EC66F46" />
-                  </div>
-                </div>
-              </div>
               <div className="card-content">
-                <h4 className="card-title">{userProfile.user.name ? userProfile.user.name : "Loading..."} <button ref={followBtn} className="btn waves-effect waves-light blue" onClick={follow}>
-                  {
-                    (following)
-                      ? "unfollow"
-                      : "follow"
-                  }</button></h4>
+                <div className="card-image profile left" style={{ marginRight: 40 }}>
+                  <img alt="" src={userProfile.user.userPic} />
+                </div>
+                <h4 className="card-title">{userProfile.user.name ? userProfile.user.name : "Loading..."}
+                  {(state.id !== userProfile.user._id) ?
+                    <button ref={followBtn} className="btn waves-effect waves-light blue" onClick={follow}>
+                      {
+                        (following)
+                          ? "unfollow"
+                          : "follow"
+                      }</button>
+                    : ""
+                  }
+                </h4>
                 <h6 className="card-title"><a className="small" href={`mailto${userProfile.user.email}`}>{userProfile.user.email}</a></h6>
-                <div style={{ display:  'flex', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <h6>{userProfile.posts.length} posts</h6>
-                  <h6>{userProfile.user.followers.length} Follower {userProfile.user.followers.length>1 ? 's' :''}</h6>
-                  <h6>{userProfile.user.following.length} Following</h6> 
+                  <h6>{userProfile.user.followers.length} Follower {userProfile.user.followers.length > 1 ? 's' : ''}</h6>
+                  <h6>{userProfile.user.following.length} Following</h6>
                 </div>
 
 

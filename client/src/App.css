@@ -92,3 +92,6 @@ textarea.materialize-textarea+label
 .updatePicButton button{
   color:#fff;
 }
+.collection-item{
+  width: 100%;
+}

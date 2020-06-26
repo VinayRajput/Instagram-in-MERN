@@ -10,6 +10,9 @@ import CreatePost from './components/screens/createPost'
 import { initialState, reducer } from './reducer/userReducer'
 import UserProfile from './components/screens/UserProfile';
 import Following from './components/screens/Following';
+import ResetPassword from './components/screens/ResetPassword';
+import ChangePassword from './components/screens/ChangePassword';
+
 
 export const UserContext = createContext();
 
@@ -23,7 +26,9 @@ const Routing = () => {
       //history.push("/");
       dispatch({ type: "USER", payload: user });
       console.log(user);
-    } else history.push("/login");//
+    } else if(!history.location.pathname.startsWith('/reset')){
+      //history.push("/login");//
+    }
   }, []);
 
   return (<Switch>
@@ -34,6 +39,8 @@ const Routing = () => {
     <Route path="/createPost" component={CreatePost} />
     <Route path="/profile/:userid" exact component={UserProfile} /> 
     <Route path="/following/" exact component={Following} /> 
+    <Route path="/resetPassword/" exact component={ResetPassword} /> 
+    <Route path="/resetPassword/:token" component={ChangePassword} /> 
   </Switch>);
 }
 function App () {

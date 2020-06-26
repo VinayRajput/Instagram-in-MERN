@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { UserContext } from '../../App';
 import M from 'materialize-css'
- 
+
 const Home = () => {
    const history = useHistory();
 
@@ -66,11 +66,11 @@ const Home = () => {
             text: textField.value
          })
       })
-      .then(res => res.json())
-      .then((result) => {
+         .then(res => res.json())
+         .then((result) => {
             const newData = listing.map(item => {
                if (item._id === result._id) {
-                  textField.value="";
+                  textField.value = "";
                   return result;
                } else {
                   return item;
@@ -78,37 +78,37 @@ const Home = () => {
             })
             setListing(newData);
          })
-         .catch(e=>{
+         .catch(e => {
             M.toast({ html: "Some error occurred, please try again.", classes: "#ef5350 red lighten-1" });
             console.log(e)
          })
-   } 
+   }
 
-   const deletePost = (e,id)=>{
+   const deletePost = (e, id) => {
       e.preventDefault();
-      fetch(`/delete/${id}`,{
-         method:"DELETE",
-         headers:{
-            "Content-Type":"application/json",
-            "authorization":`Bearer ${localStorage.getItem("jwt")}`
+      fetch(`/delete/${id}`, {
+         method: "DELETE",
+         headers: {
+            "Content-Type": "application/json",
+            "authorization": `Bearer ${localStorage.getItem("jwt")}`
          }
       })
-      .then(res=>res.json())
-      .then(result=>{
-         if(!!result.error){
-            M.toast({html:`Error Occurred: ${result.error}`})
-         } else {
-            M.toast({html:result.message});
-            const newData = listing.filter(item=>{
-               return (item._id !== id)
-            })
-            setListing(newData);
-         }
+         .then(res => res.json())
+         .then(result => {
+            if (!!result.error) {
+               M.toast({ html: `Error Occurred: ${result.error}` })
+            } else {
+               M.toast({ html: result.message });
+               const newData = listing.filter(item => {
+                  return (item._id !== id)
+               })
+               setListing(newData);
+            }
 
-      })
-      .catch(e=>{
-         M.toast({html:`Error Occurred: ${e}`})
-      })
+         })
+         .catch(e => {
+            M.toast({ html: `Error Occurred: ${e}` })
+         })
    }
 
    const showListings = () => {
@@ -120,33 +120,33 @@ const Home = () => {
                   <div className="card col s6 home-card" key={item._id}>
                      <div className="card home-card">
                         <div className="card-content">
-                        {
-                           (item.postedBy._id === state.id)
-                           ? 
-                           <button className="material-icons right red-text"  onClick={(e)=>deletePost(e,item._id)} >delete</button>
-                           : ""
-                        }
-                           
+                           {
+                              (item.postedBy._id === state.id)
+                                 ?
+                                 <button className="material-icons right red-text" onClick={(e) => deletePost(e, item._id)} >delete</button>
+                                 : ""
+                           }
+
                            <h5>{item.title}</h5></div>
                         <div className="card-image">
                            <img alt="" src={item.photo} />
                         </div>
                         <div className="card-content">
-                           <span className="pointer" onClick={(e) => {e.preventDefault(); toggleLike(item._id, item.postedBy._id, e.target)}} >
+                           <span className="pointer" onClick={(e) => { e.preventDefault(); toggleLike(item._id, item.postedBy._id, e.target) }} >
                               <i className="material-icons" data-state-id={state.id} data-liked={!!item.likes.includes(state.id)} >favorite</i>
                            </span>
 
                            <h6>{item.likes.length} likes</h6>
                            <h6>{item.title}</h6>
-                           <p>By  
+                           <p>By
                               {
-                              (item.postedBy._id !== state.id) 
-                              ? 
-                                 <Link to={"/profile/"+item.postedBy._id}> {item.postedBy.name}</Link>
-                              :
-                                 <Link to="/profile/"> {item.postedBy.name}</Link>
+                                 (item.postedBy._id !== state.id)
+                                    ?
+                                    <Link to={"/profile/" + item.postedBy._id}> {item.postedBy.name}</Link>
+                                    :
+                                    <Link to="/profile/"> {item.postedBy.name}</Link>
                               }
-                           
+
                            </p>
                            <div className="input-field">
                               <form onSubmit={(e) => {
@@ -156,17 +156,19 @@ const Home = () => {
                               }}>
                                  <input id={"addcomment" + item._id} type="text" className="validate" />
                                  <label htmlFor={"addcomment" + item._id}>add a comment</label>
-                              </form>  
+                              </form>
                            </div>
                            {
-                              item.comments.map(comment=>{
-                                 return(
+                              (!!item.comments)?
+                              item.comments.map(comment => {
+                                 return (
                                     <div key={comment._id}>
-                                    <h6><span>Posted By: {comment.postedBy.name}</span></h6>
-                                    <div>{comment.text}</div>
+                                       <h6><span>Posted By: {comment.postedBy.name}</span></h6>
+                                       <div>{comment.text}</div>
                                     </div>
                                  )
                               })
+                              : ""
                            }
                         </div>
                      </div>

@@ -22,7 +22,7 @@ const Signup = () => {
       if (msg)
          return M.toast({ html: msg, classes: "#ef5350 red lighten-1" });
 
-      if (!!image) {
+      if (!!image && !userPicUrl) {
          Util.uploadPic(image, (response)=>{
             setUserPicUrl(response.url);
             //submitForm(response.url);

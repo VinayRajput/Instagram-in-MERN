@@ -22,19 +22,19 @@ Router.get("/user/:id", authenticateUser, (req, res) => {
     })
 })
 
-Router.post("/updatePicUrl", (req, res)=>{
-  User.findByIdAndUpdate(req.body.id,{
-    userPic :req.body.userPic
-  },{
-      new:true
-  }).then(result=>{
-    res.json({message : "User Photo Updated successfully"})
-  }).catch(e=>{
+Router.post("/updatePicUrl", (req, res) => {
+  User.findByIdAndUpdate(req.body.id, {
+    userPic: req.body.userPic
+  }, {
+    new: true
+  }).then(result => {
+    res.json({ message: "User Photo Updated successfully" })
+  }).catch(e => {
     console.log(e);
   })
 })
 
-Router.put("/follow", authenticateUser , (req, res) => {
+Router.put("/follow", authenticateUser, (req, res) => {
   User.findByIdAndUpdate(req.body.followId, {
     $push: { followers: req.user._id }
   },
@@ -48,9 +48,9 @@ Router.put("/follow", authenticateUser , (req, res) => {
       }, { new: true })
         .select("-password")
         .then(loggedInUser => {
-          return res.json({followedUser, loggedInUser})
+          return res.json({ followedUser, loggedInUser })
         })
-        .catch(e => { 
+        .catch(e => {
           return res.status(422).json({ error: e })
         })
     }
@@ -69,16 +69,27 @@ Router.put("/unfollow", authenticateUser, (req, res) => {
       User.findByIdAndUpdate(req.user._id, {
         $pull: { following: req.body.unfollowId }
       }, { new: true })
-        .select("-password")  
+        .select("-password")
         .then(loggedInUser => {
-          return res.json({followedUser, loggedInUser})
+          return res.json({ followedUser, loggedInUser })
         })
         .catch(e => {
           return res.status(422).json({ error: e })
         })
     }
   )
-  .select("-password")
+    .select("-password")
+})
+
+Router.post("/searchUser", (req, res) => {
+  let userPattern = RegExp(`^${req.body.keyword}`);
+  User.find({ email: { $regex: userPattern } })
+    .select("_id email name")
+    .then(response => {
+      return res.json({ response })
+    }).catch(e => {
+      console.log(e);
+    })
 })
 
 module.exports = Router;

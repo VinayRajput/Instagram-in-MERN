@@ -53,6 +53,7 @@ const Login = () => {
                   value={password} onChange={e => setPassword(e.target.value)}
                   required
                 />
+                <a href="/resetPassword" className="right">Forgot Password ?</a>
                 <label htmlFor="password">Password</label>
               </div>
               <div className="input-field col s12">
