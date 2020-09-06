@@ -1,0 +1,97 @@
+nav{
+  background:#fff !important;
+  padding:0 10px;
+}
+a{
+  color:#000 !important;
+}
+.brand-logo,
+.ttl{
+  font-family: 'Grand Hotel', cursive;
+}
+
+.profile{
+  width:100px !important;
+  max-height:100px;
+  overflow:hidden;
+  border-radius:100px;
+  border:1px;
+  margin:10px auto;
+}
+
+.imgs{
+  max-height:125px;
+  overflow:hidden;
+  margin:10px auto;
+  box-shadow: none;
+  border-radius:10px;
+  box-shadow: 0 0 15px #00000040;
+  border:1px solid #fff;
+}
+
+.card.col{
+  box-shadow: none !important;
+}
+
+.home-card .card-image{
+  max-height: 250px;
+  overflow: hidden;
+}
+
+input:invalid{
+  background-color: #f1f0e5 !important
+}
+
+.input-field.col input:invalid+label{
+  left:2em !important
+}
+
+.input-field.col input:focus+label{
+  left:0.75 em !important
+}
+
+.pointer{
+  cursor: pointer;
+}
+
+input:valid+label,
+input[type=text]:focus+label, 
+input[type=password]:focus+label, 
+input[type=email]:focus+label, 
+input[type=url]:focus+label, 
+input[type=time]:focus+label, 
+input[type=date]:focus+label, 
+input[type=datetime]:focus+label, 
+input[type=datetime-local]:focus+label, 
+input[type=tel]:focus+label, 
+input[type=number]:focus+label, 
+input[type=search]:focus+label, 
+textarea.materialize-textarea+label
+{
+  transform:translateY(-20px) scale(0.8);
+  left:0.75em !important
+}
+
+.toast-container{
+  top:30px !important;
+  right:20px !important;
+  left:auto !important;
+}
+.material-icons[data-liked]{
+  color:grey; 
+}
+.material-icons[data-liked=true]{
+  color:deeppink;
+}
+
+.updatePicButton{
+  width:176px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+.updatePicButton button{
+  color:#fff;
+}
+.collection-item{
+  width: 100%;
+}
