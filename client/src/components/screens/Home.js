@@ -124,7 +124,7 @@ const Home = () => {
          return (
             listing.map((item, key) => {
                return (
-                  <div className="card col s6 home-card" key={item._id}>
+                  <div className="card col s12 m6 home-card" key={item._id}>
                      <div className="card home-card">
                         <div className="card-content">
                            {
@@ -194,7 +194,7 @@ const Home = () => {
    return (<div>
       <div className="home">
          <div className="row">
-            <div className="col s8 push-s2" >
+            <div className="col s12 m12 push-l1 l10" >
                {
                   showListings()
                }

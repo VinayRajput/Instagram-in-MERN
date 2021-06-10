@@ -17,7 +17,7 @@ Router.get("/allPosts", (req, res) => {
       })
 })
 
-Router.get("/getSubsribedPosts", authenticateUser, (req, res) => {
+Router.get("/getSubsribedPosts", authenticateUser, (req, res) => {   
    Post.find({ postedBy: { $in: req.user.following } })
       .populate("postedBy", "_id name email")
       .populate("comments.postedBy", "_id name")

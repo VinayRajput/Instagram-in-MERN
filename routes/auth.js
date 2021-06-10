@@ -34,7 +34,10 @@ router.post("/signin", (req, res) => {
          if (!user.activated) {
             return res.status(422).json({ error: `Your email id ${user.email} is not confirmed, please confirm your email id` });
          }
-
+         
+         return new Promise((resolve,reject)=>{
+            
+         })
          bcrypt.compare(password, user.password)
             .then(passwordMatched => {
                if (passwordMatched) {
@@ -44,20 +47,21 @@ router.post("/signin", (req, res) => {
 
                   user.resetToken = token;
                   user.expireToken = Date.now() + TOKEN_EXPIRY_TIME
-                  user.save()
-                     .then(response => {
-                        transporter.sendMail({
-                           to: user.email,
-                           from: SERVER_EMAIL,
-                           subject: "An-Instagram: A signin detected",
-                           html: `<p>Recently a new signin detected at An-instagram website with your credentials, if this wasn't you, please <a href="${BASE_URL}/resetPassword/${token}">click here to reset your password</a>
-                           </p>`
-                        })
-                     })
+                  return user.save()
                }
                else
                   res.json({ error: "Invalid email or password" })
             })
+            .then(response => {
+               transporter.sendMail({
+                  to: user.email,
+                  from: SERVER_EMAIL,
+                  subject: "An-Instagram: A signin detected",
+                  html: `<p>Recently a new signin detected at An-instagram website with your credentials, if this wasn't you, please <a href="${BASE_URL}/resetPassword/${user.resetToken}">click here to reset your password</a>
+                  </p>`
+               })
+            }).catch( e=> res.status(422).json({ error: `Some error occurred ${e}`})
+         )
       })
 })
 router.post("/signup", (req, res) => {
@@ -98,15 +102,11 @@ router.post("/signup", (req, res) => {
                            res.json({ message: "Thanks for signing up, please confirm your emali", sendMailResult: result })
                         })
 
-                     }).catch(err => {
-                        console.log(err);
-                     });
+                     }).catch( e=> res.status(422).json({ error: `Some error occurred ${e}`}));
                });
             });
 
-      }).catch(err => {
-         console.log(err);
-      })
+      }).catch( e=> res.status(422).json({ error: `Some error occurred ${e}`}));
 })
 router.post("/changePassword", (req, res) => {
    const { token, password } = req.body
@@ -143,14 +143,10 @@ router.post("/changePassword", (req, res) => {
                            `
                            }).then((result) => {
                               return res.json({ message: "Succesfully changed password", status: "success", sendMailResult: result })
-                           }).catch(e => {
-                              console.log(err);
-                           })
+                           }).catch( e=> res.status(422).json({ error: `Some error occurred ${e}`}));
                         })
 
-                     }).catch(err => {
-                        console.log(err);
-                     });
+                     }).catch( e=> res.status(422).json({ error: `Some error occurred ${e}`}));
                });
          }
       })

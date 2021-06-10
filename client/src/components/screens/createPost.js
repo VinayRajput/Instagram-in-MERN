@@ -11,7 +11,7 @@ const CreatePost = () => {
    const history = useHistory();
    useEffect(() => {
       
-      if (!url){
+      if (!url) {
          return;
       }
       const postData = JSON.stringify({
@@ -28,7 +28,7 @@ const CreatePost = () => {
          .then((data) => {
             if (data.error)
                M.toast({ html: data.error, classes: "#ef5350 red lighten-1" });
-            else {   
+            else {
                M.toast({ html: "Created Post Successfully", classes: "#a5d6a7 green lighten-2" });
                history.push("/");
             }

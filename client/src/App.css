@@ -10,6 +10,13 @@ a{
   font-family: 'Grand Hotel', cursive;
 }
 
+@media only screen and (max-width: 890px){
+  nav .brand-logo {
+    position: relative !important;
+    left: 13% !important;
+  }
+}
+
 .profile{
   width:100px !important;
   max-height:100px;
