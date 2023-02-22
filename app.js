@@ -14,7 +14,7 @@ mongoose.connection.on('connected',()=>{
 })
 
 mongoose.connection.on('error',()=>{
-   console.log("error occured in mnongo connection");
+   console.log("error occurred in mongo connection");
 })
 
 app.use(express.json());

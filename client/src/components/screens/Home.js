@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useHistory, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { UserContext } from '../../App';
 import M from 'materialize-css'
 
 const Home = () => {
-   const history = useHistory();
 
    const [listing, setListing] = useState([]);
    const { state } = useContext(UserContext);
@@ -14,7 +13,7 @@ const Home = () => {
       fetch("/allPosts", {
          signal: signal,
          headers: {
-            "Authorization": "Bearer " + localStorage.getItem("jwt")
+            "Authorization":  "Bearer " + localStorage.getItem("jwt")
          }
       }).then(res => res.json())
          .then((data) => {
@@ -30,7 +29,7 @@ const Home = () => {
       if(!state){
          return M.toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
       }
-      let toggled = (obj.dataset.liked === "true") ? false : true;
+      let toggled = (obj.dataset.liked !== "true");
       fetch("/toggleLike", {
          method: "PUT",
          headers: {
@@ -119,10 +118,11 @@ const Home = () => {
    }
 
    const showListings = () => {
+      console.log(listing)
 
       if (!!listing.length) {
          return (
-            listing.map((item, key) => {
+             listing.length && listing.map((item, key) => {
                return (
                   <div className="card col s12 m6 home-card" key={item._id}>
                      <div className="card home-card">

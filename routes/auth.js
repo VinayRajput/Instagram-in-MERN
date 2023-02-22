@@ -8,14 +8,9 @@ const emailPassErrMsg = "Invalid Email or Password entered";
 const jwt = require("jsonwebtoken");
 const { SENDGRID_API, JWT_SECRET, BASE_URL, TOKEN_EXPIRY_TIME, SERVER_EMAIL } = require("../config/keys");
 const requiredLogin = require("../middleware/authenticateUser");
-const nodemailer = require("nodemailer")
-const sendGridTransport = require("nodemailer-sendgrid-transport");
-const transporter = nodemailer.createTransport(sendGridTransport({
-   auth: {
-      api_key: SENDGRID_API
-   }
-}))
 
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(SENDGRID_API)
 router.post("/authenticateUser", requiredLogin, (req, res) => {
    console.log(req);
    res.send("hello user");
@@ -35,38 +30,42 @@ router.post("/signin", (req, res) => {
             return res.status(422).json({ error: `Your email id ${user.email} is not confirmed, please confirm your email id` });
          }
          
-         return new Promise((resolve,reject)=>{
-            
-         })
          bcrypt.compare(password, user.password)
             .then(passwordMatched => {
                if (passwordMatched) {
                   const token = jwt.sign({ _id: user._id }, JWT_SECRET);
                   const { id, email, name, following, followers, userPic } = user;
+                  const sessionExpiryTiime = Date(Date.now() + TOKEN_EXPIRY_TIME)
                   res.json({ token, user: { id, email, name, following, followers, userPic } });
 
+                  console.log(sessionExpiryTiime)
+
                   user.resetToken = token;
-                  user.expireToken = Date.now() + TOKEN_EXPIRY_TIME
+                  user.expireToken = sessionExpiryTiime
+
                   return user.save()
                }
                else
                   res.json({ error: "Invalid email or password" })
             })
             .then(response => {
-               transporter.sendMail({
+                console.log('Send mail skipped  /commented due to sendgrid issue')
+                /*sgMail.send({
                   to: user.email,
                   from: SERVER_EMAIL,
                   subject: "An-Instagram: A signin detected",
+                  text:"An-Instagram: A signin detected",
                   html: `<p>Recently a new signin detected at An-instagram website with your credentials, if this wasn't you, please <a href="${BASE_URL}/resetPassword/${user.resetToken}">click here to reset your password</a>
                   </p>`
-               })
-            }).catch( e=> res.status(422).json({ error: `Some error occurred ${e}`})
-         )
+               })*/
+            }).catch( e=> {
+                console.log(e)
+                //res.status(422).json({error: `Some error occurred ${e}`})
+             })
       })
 })
 router.post("/signup", (req, res) => {
    const { name, email, password, userPic } = req.body;
-   //console.log("request body:", req);
    if (!email || !password || !name) {
       return res.status(422).json({ "error": "Please enter all fields." })
    }
@@ -90,11 +89,13 @@ router.post("/signup", (req, res) => {
                   user.userPic = userPic;
                   user.save()
                      .then((user) => {
-                        transporter.sendMail({
+                         sgMail.send({
+                           text:".",
                            to: email,
                            from: SERVER_EMAIL,
                            "reply-to": "no-reply@an-instagram-clone.com",
                            subject: "An-Instagram: Welcome to An Instagram clone",
+                           text:"An-Instagram: Welcome to An Instagram clone -- text",
                            html: `<h1> Welcome to An Instagram clone</h1>
                                     <a href="${BASE_URL}/confirmEmail/${token}">Click here to confirm your email id</a>
                                  `
@@ -117,7 +118,6 @@ router.post("/changePassword", (req, res) => {
             return res.status(422).json({ "error": "invalid" })
          }
 
-         console.log(user);
          if (user.expireToken < Date.now() + TOKEN_EXPIRY_TIME) {
             bcrypt.hash(password, 12)
                .then((hashedPassword) => {
@@ -133,7 +133,8 @@ router.post("/changePassword", (req, res) => {
                            user.expireToken = Date.now() + TOKEN_EXPIRY_TIME
                            user.save();
 
-                           transporter.sendMail({
+                            sgMail.send({
+                              text:".",
                               to: user.email,
                               from: SERVER_EMAIL,
                               "reply-to": "no-reply@an-instagram-clone.com",
@@ -169,7 +170,8 @@ router.post("/emailConfirmation", (req, res) => {
          user.activated = true;
          user.save()
             .then((user) => {
-               transporter.sendMail({
+                sgMail.send({
+                  text:".",
                   to: user.email,
                   from: SERVER_EMAIL,
                   "reply-to": "no-reply@an-instagram-clone.com",
@@ -204,8 +206,9 @@ router.post("/resetPassword", (req, res) => {
             user.expireToken = Date.now() + TOKEN_EXPIRY_TIME
             user.save()
                .then(response => {
-                  transporter.sendMail({
-                     to: user.email,
+                   sgMail.send({
+                       text:".",
+                       to: user.email,
                      from: SERVER_EMAIL,
                      subject: "An-Instagram: Password reset request - An Instagram Clone",
                      html: `<p>You have requested a password reset, 

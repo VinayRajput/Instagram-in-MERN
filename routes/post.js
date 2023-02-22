@@ -8,7 +8,6 @@ Router.get("/allPosts", (req, res) => {
    Post.find()
       .populate("postedBy", "_id name email")
       .populate("comments.postedBy", "_id name")
-      .sort("-createdAt")
       .then(results => {
          res.json({ posts: results });
       })
