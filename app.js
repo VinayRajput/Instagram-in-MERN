@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 const mongoose = require("mongoose");
 const {MONGOURI} = require("./config/keys");
 
@@ -33,7 +33,7 @@ if(process.env.NODE_ENV == "production"){
 
 app.get("/", (req,res)=>{
    console.log('home')
-   res.send("Hello world!")
+   res.send("Apis for An-Instagram clone")
 })
 
 app.listen(PORT,()=>{
