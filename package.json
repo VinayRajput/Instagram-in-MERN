@@ -19,7 +19,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.19",
-    "mongoose": "^5.9.14",
+    "mongoose": "^6.13.5",
     "nodemailer": "^6.4.10",
     "nodemailer-sendgrid-transport": "^0.2.0"
   }
