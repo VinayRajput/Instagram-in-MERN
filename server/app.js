@@ -21,14 +21,14 @@ app.use(require("./routes/auth"));
 app.use(require("./routes/post"));
 app.use(require("./routes/user"));
 
-if(process.env.NODE_ENV == "production"){
-   app.use(express.static("client/build"))
-   const path = require("path");
-
-   app.get('/*', function(req, res) {
-       res.sendFile(path.join(__dirname, 'client',"build", 'index.html'));
-   });
-}
+// if(process.env.NODE_ENV == "production"){
+//    app.use(express.static("client/build"))
+//    const path = require("path");
+//
+//    app.get('/*', function(req, res) {
+//        res.sendFile(path.join(__dirname, 'client',"build", 'index.html'));
+//    });
+// }
 
 app.get("/", (req,res)=>{
    console.log('home')
