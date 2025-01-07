@@ -6,11 +6,11 @@ Instagram like website using MERN Stack
 ### TODOs
 ##### - Search tobe enabled
 ##### - Post Detail page
-##### - CSS imporovements
+##### - CSS improvements
 ###  Code refactoring
 #### React
 ##### - Implement Axios, Saga
 
 #### Nodejs
 ##### - check on user delete
-##### - on user delete, delete relevent posts or map it to some common user
+##### - on user delete, delete relevant posts or map it to some common user
