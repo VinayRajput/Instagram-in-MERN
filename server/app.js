@@ -1,16 +1,26 @@
 const express = require("express");
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 const mongoose = require("mongoose");
 const {MONGOURI} = require("./config/keys");
+const log4js = require('log4js');
 
 require('./models/user');
 require("./models/post");
+
+log4js.configure({
+   appenders: { fileAppender: { type: 'file', filename: 'logs/stdout.log' } },
+   categories: { default: { appenders: ['fileAppender'], level: 'info' } }
+});
+const logger = log4js.getLogger();
 const {connection} = require("mongoose");
 //mongoDB atlas password
 
 mongoose.connect(MONGOURI, {})
-    .then(connection=>console.log(`Connected to mongodb`));
+    .then(connection=>{
+       console.log(`Connected to mongodb`);
+       logger.info('Connected to mongodb')
+    });
 
 mongoose.connection.on('error',()=>{
    console.log("error occurred in mongo connection");
@@ -31,10 +41,10 @@ app.use(require("./routes/user"));
 // }
 
 app.get("/", (req,res)=>{
-   console.log('home')
+   logger.info('request received on root')
    res.send("Apis for An-Instagram clone")
 })
 
 app.listen(PORT,()=>{
-   console.log(`server is running on ${PORT}`)
+   logger.info(`server is running on ${PORT}`)
 })
