@@ -29,7 +29,10 @@ router.post("/signin", (req, res) => {
          if (!user.activated) {
             return res.status(422).json({ error: `Your email id ${user.email} is not confirmed, please confirm your email id` });
          }
-         
+       bcrypt.hash(password, 12)
+           .then((hashedPassword) => {
+                console.log(hashedPassword);
+           });
          bcrypt.compare(password, user.password)
             .then(passwordMatched => {
                if (passwordMatched) {
@@ -216,6 +219,7 @@ router.post("/resetPassword", (req, res) => {
                         If you have not requested password reset, please ignore this mail.
                         </p>`
                   })
+                   console.log(`${BASE_URL}/resetPassword/${token}`)
                   res.json({ "message": `Check your mail, we have sent an email to ${user.email}` })
                });
          })

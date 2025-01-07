@@ -6,12 +6,11 @@ const {MONGOURI} = require("./config/keys");
 
 require('./models/user');
 require("./models/post");
+const {connection} = require("mongoose");
 //mongoDB atlas password
 
-mongoose.connect(MONGOURI, {useNewUrlParser:true, useUnifiedTopology:true})
-mongoose.connection.on('connected',()=>{
-   console.log("connected to mongo");
-})
+mongoose.connect(MONGOURI, {})
+    .then(connection=>console.log(`Connected to mongodb`));
 
 mongoose.connection.on('error',()=>{
    console.log("error occurred in mongo connection");
