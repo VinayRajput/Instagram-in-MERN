@@ -5,8 +5,8 @@
   "main": "app.js",
   "author": "Vinay Rajput",
   "engines": {
-    "node": "16.20.2",
-    "npm": "8.19.4"
+    "node": "20.17.0",
+    "npm": "10.8.2"
   },
   "scripts": {
     "start": "node app.js",
@@ -22,6 +22,7 @@
     "log4js": "^6.9.1",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.3",
+    "node-gyp": "^11.0.0",
     "nodemailer": "6.9.9",
     "nodemailer-sendgrid-transport": "^0.2.0"
   }

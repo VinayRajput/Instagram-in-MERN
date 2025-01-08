@@ -3,4 +3,6 @@
 .nvmrc
 .idea/
 *.code-workspace
-/server/node_modules
+/node_modules
+/logs
+/tmp

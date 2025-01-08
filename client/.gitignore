@@ -21,3 +21,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+/config/dev.js
+/node_modules/
+.nvmrc
+.idea/
+*.code-workspace
+/logs
+/tmp

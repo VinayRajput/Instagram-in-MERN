@@ -1,6 +1,4 @@
-/config/dev.js
-/node_modules/
 .nvmrc
 .idea/
 *.code-workspace
-/server/node_modules
+
