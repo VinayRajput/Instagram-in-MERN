@@ -26,12 +26,14 @@ mongoose.connection.on('error',(er)=>{
     logger.info(`error occurred in mongo connection ${er}`)
 })
 
-const allowedOrigins = ALLOWED_ORIGINS;
+const allowedOrigins = ALLOWED_ORIGINS.split(',');
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
         console.log('origin',origin,'allowedOrigins',allowedOrigins);
+        console.log(allowedOrigins.some(allowedOrigin => origin.includes(allowedOrigin)));
         if (allowedOrigins.some(allowedOrigin => origin.includes(allowedOrigin))) {
+
             return callback(null, true);
         }
         return callback(new Error('Not allowed by CORS'));
