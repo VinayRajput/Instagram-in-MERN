@@ -1,7 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import M from 'materialize-css';
 import {useHistory} from 'react-router-dom';
-import Util from '../../Utils';
+import * as Util from '../../shared/Utils';
+import {ACCESS_TOKEN, CLOUDINARY_UPLOAD_URL} from "../../shared/AppConstants";
+import axiosInstance, {axiosOnly} from "../../services/axios";
 
 const CreatePost = () => {
     const [title, setTitle] = useState("");
@@ -20,14 +22,10 @@ const CreatePost = () => {
             pic: url
         });
 
-        Util.postMethod("/createPost", postData, {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("jwt")}`
-        })
-            .then(res => res.json())
-            .then((data) => {
-                if (data.error)
-                    M.toast({html: data.error, classes: "#ef5350 red lighten-1"});
+        axiosInstance.post("/createPost", postData)
+            .then((res) => {
+                if (res?.data?.error)
+                    M.toast({html: res?.data?.error, classes: "#ef5350 red lighten-1"});
                 else {
                     M.toast({html: "Created Post Successfully", classes: "#a5d6a7 green lighten-2"});
                     history.push("/");
@@ -47,10 +45,9 @@ const CreatePost = () => {
         data.append("title", title);
         data.append("description", body);
 
-        Util.postMethod("	https://api.cloudinary.com/v1_1/vinkrins/image/upload", data, {})
-            .then(res => res.json())
+        axiosOnly.post(CLOUDINARY_UPLOAD_URL, data, {})
             .then(response => {
-                setUrl(response.url);
+                setUrl(response?.data?.url);
             }).catch(e => {
             console.log(e);
         })

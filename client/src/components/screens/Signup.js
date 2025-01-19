@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {Link, useHistory} from 'react-router-dom';
 import M from 'materialize-css';
-import Util from '../../Utils';
+import * as Util from '../../shared/Utils';
+import axiosInstance from "../../services/axios";
 
 const Signup = () => {
     const [name, setName] = useState("");
@@ -17,11 +18,10 @@ const Signup = () => {
 
         if (!!image && !userPicUrl) {
             Util.uploadPic(image, (response) => {
-                setUserPicUrl(response.url);
-                //submitForm(response.url);
+                setUserPicUrl(response?.data?.url);
             })
         } else {
-            submitForm()
+            submitForm(userPicUrl)
         }
     }
     const submitForm = useCallback((url) => {
@@ -31,22 +31,18 @@ const Signup = () => {
             password: password,
             userPic: url || userPicUrl
         });
-
-        Util.postMethod("/signup", data)
-            .then(res => res.json())
-            .then((data) => {
-                if (data.error)
-                    M.toast({html: data.error, classes: "#ef5350 red lighten-1"});
-                else {
-                    M.toast({html: data.message, classes: "#a5d6a7 green lighten-3"});
-                    history.push("/login")
-                }
+        axiosInstance.post("/signup",data)
+            .then(({data:{message}}) => {
+                M.toast({html: message, classes: "#a5d6a7 green lighten-3"});
+                history.push("/login")
+            }).catch(({response:{data:{message}}}) => {
+                M.toast({html: message, classes: "#ef5350 red lighten-1"});
             })
     }, [email, history, name, password, userPicUrl])
 
     useEffect(() => {
         if (!!userPicUrl) {
-            submitForm();
+            submitForm(userPicUrl);
         }
 
     }, [userPicUrl, submitForm]);
@@ -75,7 +71,7 @@ const Signup = () => {
                                 <div className="btn">
                                     <span>Upload User pic</span>
                                     <input type="file"
-                                           onChange={(e) => setImage(e.target.files[0])}
+                                           onChange={(e) => setImage(e?.target?.files[0])}
                                     />
                                 </div>
                                 <div className="file-path-wrapper">

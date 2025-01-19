@@ -2,7 +2,7 @@ import React, { useContext, useRef, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { UserContext } from "../App";
 import M from 'materialize-css';
-import Util from '../Utils';
+import * as Util from '../shared/Utils';
 const NavBar = () => {
   const { state, dispatch } = useContext(UserContext);
   const history = useHistory()
@@ -45,14 +45,11 @@ const NavBar = () => {
 
   const searchUsers = (keyword) => {
     const data = JSON.stringify({ keyword });
-    console.log(data)
     setKeyword(keyword);
     if(keyword === "") return setUserResults(keyword) 
     
     Util.postMethod("/searchUser", data)
-      .then(res => res.json())
       .then(users => {
-        console.log(users)
         setUserResults(users.response);
       })
   }

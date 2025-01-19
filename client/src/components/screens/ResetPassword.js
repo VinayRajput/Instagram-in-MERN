@@ -1,7 +1,8 @@
 import React, { useState, } from 'react';
 import {useHistory} from 'react-router-dom';
 import M from 'materialize-css';
-import Util from '../../Utils';
+import * as Util from '../../shared/Utils';
+import axiosInstance from "../../services/axios";
 
 
 const ResetPassword = () => {
@@ -15,9 +16,8 @@ const ResetPassword = () => {
       email
     });
 
-    Util.postMethod("/resetPassword", Data)
-      .then(res => res.json())
-      .then((data) => {
+    axiosInstance.post("/resetPassword", Data)
+      .then(({data}) => {
         if (data.error)
           M.toast({ html: data.error, classes: "#ef5350 red lighten-1" });
         else {

@@ -1,24 +1,19 @@
+import {ACTION_CLEAR, ACTION_UPDATE, ACTION_USER, USER} from "../shared/AppConstants";
+
 export const initialState = null;
 
 export const reducer = (state, action) => {
 
   switch(action.type){
-    case "USER":
-      return action.payload
-    case "CLEAR":
+    case ACTION_USER:
+      return {...initialState, ...action.payload}
+    case ACTION_CLEAR:
       return null;
-    case "UPDATE":
-      localStorage.setItem("user",JSON.stringify(action.payload));
-      return action.payload
+    case ACTION_UPDATE:
+      localStorage.setItem(USER,JSON.stringify(action.payload));
+      return {...initialState, ...action.payload}
     default:
       return state 
-    /* 
-    case "UPDATE":
-      return {
-        ...state,
-        
-      } 
-    */
   }
 
   /*   

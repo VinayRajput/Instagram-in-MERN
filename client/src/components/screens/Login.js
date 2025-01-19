@@ -2,7 +2,9 @@ import React, { useState, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { UserContext } from '../../App'
 import M from 'materialize-css';
-import Util from '../../Utils';
+import axiosInstance from '../../services/axios';
+import * as Util from '../../shared/Utils';
+import {ACCESS_TOKEN, ACTION_USER, APPLICATION_JSON, USER} from "../../shared/AppConstants";
 
 
 const Login = () => {
@@ -21,20 +23,25 @@ const Login = () => {
       password
     });
 
-    Util.postMethod("/signin", Data)
-      .then(res => res.json())
-      .then((data) => {
-        if (data.error)
-          M.toast({ html: data.error, classes: "#ef5350 red lighten-1" });
-        else {
-          localStorage.setItem("jwt", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
-          console.log(data);
-          dispatch({ type: "USER", payload: data.user });
-          //M.toast({ html: data.message, classes: "#a5d6a7 green lighten-3" });
-          history.push("/")
-        }
-      })
+    axiosInstance.post("/signin",Data,{
+      headers:  {
+        CONTENT_TYPE:APPLICATION_JSON
+      }
+    })
+    .then(({data: {error, token, user}}) => {
+      if(error) {
+        M.toast({html: error, classes: "#ef5350 red lighten-1"});
+        return;
+      }
+
+        localStorage.setItem(ACCESS_TOKEN, token);
+        localStorage.setItem(USER, JSON.stringify(user));
+        dispatch({ type: ACTION_USER, payload: user });
+        history.push("/")
+    })
+    .catch((error)=>{
+        M.toast({ html: error, classes: "#ef5350 red lighten-1" });
+    });
   }
 
   return (

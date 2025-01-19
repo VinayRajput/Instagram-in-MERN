@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { UserContext } from "../../App";
 import { useParams } from 'react-router-dom';
-import Util from '../../Utils';
+import * as Util from '../../shared/Utils';
+import axiosInstance from '../../services/axios';
+import M from 'materialize-css';
 
 const UserProfile = (props) => {
   const [userProfile, setProfile] = useState({ user: {}, posts: [] });
@@ -13,20 +15,18 @@ const UserProfile = (props) => {
   useEffect(() => {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    fetch(`/user/${userid}`, {
+    axiosInstance.get(`/user/${userid}`, {
       signal: signal,
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("jwt")
-      }
-    }).then(r => r.json())
-      .then((data) => {
-        if (data.error) {
+    })
+      .then(({data}) => {
+        if (data?.error) {
           setProfile(null);
+          M.toast({ html:`Some error occurred while fetching user profile, please try after some time`,classes:"red lighten-1" })
         } else {
-          console.log('data', data);
+          const {user:User} = data;
           setProfile(data);
           let user = JSON.parse(localStorage.getItem("user"));
-          if (user && data.user.followers.includes(user.id)) {
+          if (user && User?.followers.includes(user.id)) {
             isItFollowing(true);
             Util.toggleClass(followBtn.current, 'red', 'blue');
           }
@@ -48,14 +48,7 @@ const UserProfile = (props) => {
     
   }, [state, userProfile.user.followers]); */
 
-  const follow = () => {
-    (following)
-      ?
-      unFollowUser()
-      :
-      followUser()
-  }
-
+  const follow = () => (following) ? followUser(false) : followUser(true);
   const updateUsers = (data) => {
     data.loggedInUser.id = data.loggedInUser._id;
     data.followedUser.id = data.followedUser._id;
@@ -68,45 +61,23 @@ const UserProfile = (props) => {
     data.loggedInUser.id = data.loggedInUser._id;
     dispatch({ type: "UPDATE", payload: data.loggedInUser })
   }
-
-  const followUser = () => {
-    fetch("/follow", {
+  const followUser = (follow) => {
+    axiosInstance.put("/follow", {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("jwt")
-      },
-      body: JSON.stringify({ followId: userid })
+      data: { followId: userid, follow:follow }
     })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        isItFollowing(true);
-        updateUsers(data);
-        Util.toggleClass(followBtn.current, 'red', 'blue');
-      })
-  }
-
-  const unFollowUser = () => {
-    fetch("/unfollow", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("jwt")
-      },
-      body: JSON.stringify({ unfollowId: userid })
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        isItFollowing(false);
-        updateUsers(data);
-        Util.toggleClass(followBtn.current, 'blue', 'red');
+      .then(res => {
+        console.log(res);
+        isItFollowing(follow);
+        updateUsers(res.data);
+        Util.toggleClass(followBtn.current,
+          follow ? 'red' : 'blue',
+          follow ? 'blue' : 'red');
       })
   }
 
   return (
-    (!userProfile.user.name) ? <h4 className="center-align">Loading...</h4> :
+    (!userProfile?.user?.name) ? <h4 className="center-align">Loading...</h4> :
       <div>
 
         <div className="row">
@@ -116,7 +87,8 @@ const UserProfile = (props) => {
                 <div className="card-image profile left" style={{ marginRight: 40 }}>
                   <img alt="" src={userProfile.user.userPic} />
                 </div>
-                <h4 className="card-title">{userProfile.user.name ? userProfile.user.name : "Loading..."}
+                <h4 className="card-title">
+                  <div className={"card-title"}>{userProfile.user.name ? userProfile.user.name : "Loading..."}</div>
                   {(state && state.id !== userProfile.user._id) ?
                     <button ref={followBtn} className="btn waves-effect waves-light blue" onClick={follow}>
                       {
@@ -130,8 +102,8 @@ const UserProfile = (props) => {
                 <h6 className="card-title"><a className="small" href={`mailto${userProfile.user.email}`}>{userProfile.user.email}</a></h6>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <h6>{userProfile.posts.length} posts</h6>
-                  <h6>{userProfile.user.followers.length} Follower {userProfile.user.followers.length > 1 ? 's' : ''}</h6>
-                  <h6>{userProfile.user.following.length} Following</h6>
+                  <h6>{userProfile?.user?.followers.length} Follower {userProfile.user.followers.length > 1 ? 's' : ''}</h6>
+                  <h6>{userProfile?.user?.following.length} Following</h6>
                 </div>
 
 

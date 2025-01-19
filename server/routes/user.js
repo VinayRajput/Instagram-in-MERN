@@ -11,10 +11,9 @@ Router.get("/user/:id", (req, res) => {
     .then(user => {
       Post.find({ postedBy: req.params.id })
         .populate("postedBy", "_id name")
-        .exec((err, posts) => {
-          //console.log(posts);
-          if (err) { return res.status(422).json({ error: err }) }
-          return res.json({ user, posts })
+        .exec()
+        .then((response) => {
+          return res.json({ user, posts:response})
         })
     })
     .catch(e => {
@@ -33,54 +32,36 @@ Router.post("/updatePicUrl", (req, res) => {
     console.log(e);
   })
 })
-
 Router.put("/follow", authenticateUser, (req, res) => {
-  User.findByIdAndUpdate(req.body.followId, {
-    $push: { followers: req.user._id }
-  },
-    {
-      new: true
-    },
-    (err, followedUser) => {
-      if (err) return res.status(422).json({ error: err });
-      User.findByIdAndUpdate(req.user._id, {
-        $push: { following: req.body.followId }
-      }, { new: true })
+  const {body: {data:{followId,follow:followStatus}}} = req
+  const updateFollowingStatus = (followStatus)=> {
+    if (followStatus === true) {
+      return User.findByIdAndUpdate(
+          followId,
+          {$push: {followers: req.user._id}},
+          {new: true}
+      )
+    } else {
+      return User.findByIdAndUpdate(
+          followId,
+          {$pull: {followers: req.user._id}},
+          {new: true}
+      )
+    }
+  }
+  updateFollowingStatus(followStatus).select("-password")
+  .then((followedUser) => {
+    User.findByIdAndUpdate(req.user._id, {
+      $push: { following: followId }
+    }, { new: true })
         .select("-password")
         .then(loggedInUser => {
           return res.json({ followedUser, loggedInUser })
         })
-        .catch(e => {
-          return res.status(422).json({ error: e })
-        })
-    }
-  ).select("-password")
+  }).catch(err=>{
+    return res.status(422).json({ error: err });
+  })
 })
-
-Router.put("/unfollow", authenticateUser, (req, res) => {
-  User.findByIdAndUpdate(req.body.unfollowId, {
-    $pull: { followers: req.user._id }
-  },
-    {
-      new: true
-    },
-    (err, followedUser) => {
-      if (err) return res.status(422).json({ error: err });
-      User.findByIdAndUpdate(req.user._id, {
-        $pull: { following: req.body.unfollowId }
-      }, { new: true })
-        .select("-password")
-        .then(loggedInUser => {
-          return res.json({ followedUser, loggedInUser })
-        })
-        .catch(e => {
-          return res.status(422).json({ error: e })
-        })
-    }
-  )
-    .select("-password")
-})
-
 Router.post("/searchUser", (req, res) => {
   let userPattern = RegExp(`^${req.body.keyword}`);
   User.find({ email: { $regex: userPattern } })

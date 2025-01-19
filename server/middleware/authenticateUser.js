@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const User = mongoose.model("User")
 
 module.exports = (req, res, next) => {
+   // console.log('authenticateUser',req.body)
    const { authorization } = req.headers
    if (!authorization) {
       return res.status(422).json(loginErrMsg)
@@ -17,7 +18,7 @@ module.exports = (req, res, next) => {
       const { _id } = payload
       User.findById(_id)
          .then(userdata => {
-            console.log(userdata);
+            // console.log('authenticateUser',userdata);
             req.user = userdata
             next();
          })
