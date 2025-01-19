@@ -1,7 +1,9 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {useHistory, Link} from 'react-router-dom';
 import {UserContext} from '../../App';
-import M from 'materialize-css'
+import M from 'materialize-css';
+import axiosInstance from '../../services/axios';
+import {ACCESS_TOKEN} from "../../shared/AppConstants";
 
 const Following = () => {
     const history = useHistory();
@@ -11,41 +13,44 @@ const Following = () => {
     useEffect(() => {
         const abortController = new AbortController();
         const signal = abortController.signal;
-        fetch("/getSubsribedPosts", {
-            signal: signal,
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("jwt")
-            }
+
+        axiosInstance.get("/getSubsribedPosts", {
+            signal: signal
         })
-            .then(res => res.json())
             .then((data) => {
-                console.log(data.posts);
-                setListing(data.posts);
+                console.log(data?.data?.posts);
+                setListing(data?.data?.posts);
             })
-        return function cleanUp() {
-            abortController.abort()
-        }
+            .catch((error) => {
+                // Check if the error is a cancellation
+                if (axiosInstance.isCancel(error)) {
+                    console.log('Request canceled', error.message);
+                } else {
+                    // Handle other potential errors
+                    console.error('Fetch error:', error);
+                }
+            });
+
+        // Cleanup function to abort the request
+        return () => {
+            abortController.abort();
+        };
     }, []);
 
     const toggleLike = (id, postedBy, obj) => {
         let toggled = (obj.dataset.liked !== "true");
-        fetch("/toggleLike", {
+        axiosInstance.get("/toggleLike", {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("jwt")
-            },
             body: JSON.stringify({
                 postId: id,
                 postedBy: postedBy,
                 like: toggled
             })
         })
-            .then(r => r.json())
             .then(result => {
                 const newData = listing.map((item) => {
-                    if (item._id === result._id) {
-                        if (result.likes.includes(state.id))
+                    if (item._id === result?.data?._id) {
+                        if (result?.data?.likes.includes(state.id))
                             obj.dataset.liked = toggled;
                         return result
                     }
@@ -57,18 +62,13 @@ const Following = () => {
     }
 
     const makeComment = (textField, postId) => {
-        fetch("/comment", {
+        axiosInstance.put("/comment", {
             method: "PUT",
-            headers: {
-                "Content-type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("jwt")
-            },
             body: JSON.stringify({
                 postId: postId,
                 text: textField.value
             })
         })
-            .then(res => res.json())
             .then((result) => {
                 const newData = listing.map(item => {
                     if (item._id === result._id) {
@@ -88,14 +88,9 @@ const Following = () => {
 
     const deletePost = (e, id) => {
         e.preventDefault();
-        fetch(`/delete/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "authorization": `Bearer ${localStorage.getItem("jwt")}`
-            }
+        axiosInstance.get(`/delete/${id}`, {
+            method: "DELETE"
         })
-            .then(res => res.json())
             .then(result => {
                 if (!!result.error) {
                     M.toast({html: `Error Occurred: ${result.error}`})
@@ -115,7 +110,7 @@ const Following = () => {
 
     const showListings = () => {
 
-        if (!!localStorage.getItem("jwt")) {
+        if (!!localStorage.getItem(ACCESS_TOKEN)) {
             return (
                 listing.map((item, key) => {
                     return (

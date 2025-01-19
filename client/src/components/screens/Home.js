@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../../App';
-import M from 'materialize-css'
+import M from 'materialize-css';
+import axiosInstance from '../../services/axios';
+
 
 const Home = () => {
 
@@ -10,15 +12,11 @@ const Home = () => {
    useEffect(() => {
       const abortController = new AbortController();
       const signal = abortController.signal;
-      fetch("/allPosts", {
-         signal: signal,
-         headers: {
-            "Authorization":  "Bearer " + localStorage.getItem("jwt")
-         }
-      }).then(res => res.json())
-         .then((data) => {
-            console.log(data.posts);
-            setListing(data.posts);
+      axiosInstance.get("/allPosts", {
+         signal: signal
+      })
+      .then((data) => {
+            setListing(data?.data?.posts||[]);
          })
       return function cleanUp () {
          abortController.abort()
@@ -30,25 +28,19 @@ const Home = () => {
          return M.toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
       }
       let toggled = (obj.dataset.liked !== "true");
-      fetch("/toggleLike", {
-         method: "PUT",
-         headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.getItem("jwt")
-         },
-         body: JSON.stringify({
-            postId: id,
-            postedBy: postedBy,
-            like: toggled
-         })
+      axiosInstance.put("/toggleLike", {
+         postId: id,
+         postedBy: postedBy,
+         like: toggled
       })
-         .then(r => r.json())
          .then(result => {
+            console.log('obj.dataset',obj.dataset.stateId, {...result})
             const newData = listing.map((item) => {
-               if (item._id === result._id) {
-                  if (result.likes.includes(state.id))
-                     obj.dataset.liked = toggled;
-                  return result
+               if (item._id === result?.data?._id) {
+
+                  if (result?.data?.likes.includes(state.id))
+                     obj.dataset.liked = toggled.toString();
+                  return result?.data
                } return item;
             });
 
@@ -61,21 +53,16 @@ const Home = () => {
          return M.toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
       }
 
-      fetch("/comment", {
+      axiosInstance.get("/comment", {
          method: "PUT",
-         headers: {
-            "Content-type": "application/json",
-            "Authorization": "Bearer " + localStorage.getItem("jwt")
-         },
          body: JSON.stringify({
             postId: postId,
             text: textField.value
          })
       })
-         .then(res => res.json())
          .then((result) => {
             const newData = listing.map(item => {
-               if (item._id === result._id) {
+               if (item._id === result?.data?._id) {
                   textField.value = "";
                   return result;
                } else {
@@ -92,16 +79,11 @@ const Home = () => {
 
    const deletePost = (e, id) => {
       e.preventDefault();
-      fetch(`/delete/${id}`, {
+      axiosInstance.delete(`/delete/${id}`, {
          method: "DELETE",
-         headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${localStorage.getItem("jwt")}`
-         }
       })
-         .then(res => res.json())
          .then(result => {
-            if (!!result.error) {
+            if (!!result?.error) {
                M.toast({ html: `Error Occurred: ${result.error}` })
             } else {
                M.toast({ html: result.message });
@@ -118,8 +100,6 @@ const Home = () => {
    }
 
    const showListings = () => {
-      console.log(listing)
-
       if (!!listing.length) {
          return (
              listing.length && listing.map((item, key) => {
@@ -147,7 +127,7 @@ const Home = () => {
                            <h6>{item.title}</h6>
                            <p>By
                               {
-                                 (state) 
+                                 (state)
                                     ?
 
                                  (item.postedBy._id !== state.id)

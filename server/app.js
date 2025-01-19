@@ -1,46 +1,64 @@
 const express = require("express");
 const app = express();
-const PORT = process.env.PORT || 3000;
+const {MONGOURI, SERVER_PORT,ALLOWED_ORIGINS, API_PATH} = require("./config/keys");
+const PORT = SERVER_PORT || 3000;
 const mongoose = require("mongoose");
-const {MONGOURI} = require("./config/keys");
 const log4js = require('log4js');
+const cors = require('cors')
+
 
 require('./models/user');
 require("./models/post");
 
 log4js.configure({
    appenders: { fileAppender: { type: 'file', filename: 'logs/stdout.log' } },
-   categories: { default: { appenders: ['fileAppender'], level: 'info' } }
+   categories: { default: { appenders: ['fileAppender'], level: 'error' } }
 });
-const logger = log4js.getLogger();
-const {connection} = require("mongoose");
+const logger = {...log4js.getLogger(), info : (msg)=>{ console.log(msg); log4js.getLogger().info(msg); }};
 //mongoDB atlas password
 
 mongoose.connect(MONGOURI, {})
     .then(connection=>{
-       console.log(`Connected to mongodb`);
        logger.info('Connected to mongodb')
     });
 
-mongoose.connection.on('error',()=>{
-   console.log("error occurred in mongo connection");
+mongoose.connection.on('error',(er)=>{
+    logger.info(`error occurred in mongo connection ${er}`)
 })
 
+const allowedOrigins = ALLOWED_ORIGINS;
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.some(allowedOrigin => origin.includes(allowedOrigin))) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+
+    },
+    credentials: true
+    })
+);
+
 app.use(express.json());
-app.use(require("./routes/auth"));
-app.use(require("./routes/post"));
-app.use(require("./routes/user"));
 
-// if(process.env.NODE_ENV == "production"){
-//    app.use(express.static("client/build"))
-//    const path = require("path");
-//
-//    app.get('/*', function(req, res) {
-//        res.sendFile(path.join(__dirname, 'client',"build", 'index.html'));
-//    });
-// }
+const routes= express.Router();
+routes.use(require("./routes/auth"));
+routes.use(require("./routes/post"));
+routes.use(require("./routes/user"));
+app.use(API_PATH,routes);
 
-app.get("/", (req,res)=>{
+// if(process.env.NODE_ENV === "production") // Disable this line to test react build as prod environment
+{
+   app.use(express.static("../client/build"))
+   const path = require("path");
+
+   app.get('/', function(req, res) {
+       res.sendFile(path.join(__dirname, '..','client',"build", 'index.html'));
+   });
+}
+
+app.get(`${API_PATH}/`, (req,res)=>{
    logger.info('request received on root')
    res.send("Apis for An-Instagram clone")
 })

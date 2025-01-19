@@ -6,10 +6,10 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const emailPassErrMsg = "Invalid Email or Password entered";
 const jwt = require("jsonwebtoken");
-const { SENDGRID_API, JWT_SECRET, BASE_URL, TOKEN_EXPIRY_TIME, SERVER_EMAIL } = require("../config/keys");
+const { SENDGRID_API, JWT_SECRET, BASE_URL,SERVER_PORT, TOKEN_EXPIRY_TIME, SERVER_EMAIL } = require("../config/keys");
 const requiredLogin = require("../middleware/authenticateUser");
 
-const sgMail = require('@sendgrid/mail')
+const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(SENDGRID_API)
 router.post("/authenticateUser", requiredLogin, (req, res) => {
    console.log(req);
@@ -17,11 +17,13 @@ router.post("/authenticateUser", requiredLogin, (req, res) => {
 })
 router.post("/signin", (req, res) => {
    const { email, password } = req.body;
+   console.log('req.body',req.body);
    if (!email || !password) {
       return res.status(422).json({ error: emailPassErrMsg })
    }
    User.findOne({ email: email }).
       then(user => {
+          console.log('user',user);
          if (!user) {
             return res.status(422).json({ error: emailPassErrMsg });
          }
@@ -38,13 +40,13 @@ router.post("/signin", (req, res) => {
                if (passwordMatched) {
                   const token = jwt.sign({ _id: user._id }, JWT_SECRET);
                   const { id, email, name, following, followers, userPic } = user;
-                  const sessionExpiryTiime = Date(Date.now() + TOKEN_EXPIRY_TIME)
+                  const sessionExpiryTime = Date(Date.now() + TOKEN_EXPIRY_TIME)
                   res.json({ token, user: { id, email, name, following, followers, userPic } });
 
-                  console.log(sessionExpiryTiime)
+                  console.log(sessionExpiryTime)
 
                   user.resetToken = token;
-                  user.expireToken = sessionExpiryTiime
+                  user.expireToken = sessionExpiryTime
 
                   return user.save()
                }
@@ -70,12 +72,12 @@ router.post("/signin", (req, res) => {
 router.post("/signup", (req, res) => {
    const { name, email, password, userPic } = req.body;
    if (!email || !password || !name) {
-      return res.status(422).json({ "error": "Please enter all fields." })
+      return res.status(422).json({ "message": "Please enter all fields." })
    }
    User.findOne({ email: email })
       .then((savedUser) => {
          if (savedUser) {
-            return res.status(422).json({ error: `User already existed with email id ${email}` });
+            return res.status(422).json({ message: `User already existed with email id ${email}` });
          }
          bcrypt.hash(password, 12)
             .then((hashedPassword) => {
@@ -90,26 +92,26 @@ router.post("/signup", (req, res) => {
                   })
 
                   user.userPic = userPic;
-                  user.save()
+                  user?.save()
                      .then((user) => {
                          sgMail.send({
-                           text:".",
-                           to: email,
-                           from: SERVER_EMAIL,
-                           "reply-to": "no-reply@an-instagram-clone.com",
-                           subject: "An-Instagram: Welcome to An Instagram clone",
-                           text:"An-Instagram: Welcome to An Instagram clone -- text",
-                           html: `<h1> Welcome to An Instagram clone</h1>
-                                    <a href="${BASE_URL}/confirmEmail/${token}">Click here to confirm your email id</a>
-                                 `
-                        }).then((result) => {
-                           res.json({ message: "Thanks for signing up, please confirm your emali", sendMailResult: result })
+                             subject: "An-Instagram: Welcome to An Instagram clone",
+                             from: SERVER_EMAIL,
+                             html: `<h1> Welcome to An Instagram clone</h1>
+                                    <a href="${BASE_URL}/confirmEmail/${token}">Click here to confirm your email id</a>`,
+                             to: email,
+                             text:"An-Instagram: Welcome to An Instagram clone -- text",
+                             "reply-to": "vinkrins@gmail.com"
+                         }).then((result) => {
+                           res.json({ message: "Thanks for signing up, we sent you an email, please confirm your email", sendMailResult: result })
                         })
 
-                     }).catch( e=> res.status(422).json({ error: `Some error occurred ${e}`}));
+                     }).catch( e=> {
+res.status(422).json({error: `Some error occurred ${e.message}`})
+// Added a detail to the error response by including the message property of the error object
+                  });
                });
             });
-
       }).catch( e=> res.status(422).json({ error: `Some error occurred ${e}`}));
 })
 router.post("/changePassword", (req, res) => {
@@ -158,8 +160,6 @@ router.post("/changePassword", (req, res) => {
       return res.status(422).json({ message: "Please enter a password to change." })
    }
 })
-
-
 router.post("/emailConfirmation", (req, res) => {
    const { token } = req.body
    User.findOne({ resetToken: token })
@@ -194,7 +194,6 @@ router.post("/emailConfirmation", (req, res) => {
       return res.status(422).json({ message: "Please enter a password to change." })
    }
 })
-
 router.post("/resetPassword", (req, res) => {
    crypto.randomBytes(32, (err, buffer) => {
       if (err) console.log(err)
@@ -203,24 +202,28 @@ router.post("/resetPassword", (req, res) => {
          .select("-password")
          .then(user => {
             if (!user) {
-               return res.status(422).json({ error: `No user found with email ${req.body.email}` })
+               return res.json({ error: `No user found with email ${req.body.email}` })
             }
             user.resetToken = token;
             user.expireToken = Date.now() + TOKEN_EXPIRY_TIME
             user.save()
                .then(response => {
                    sgMail.send({
-                       text:".",
-                       to: user.email,
-                     from: SERVER_EMAIL,
-                     subject: "An-Instagram: Password reset request - An Instagram Clone",
-                     html: `<p>You have requested a password reset, 
-                        <a href="${BASE_URL}/resetPassword/${token}">click here to reset your password</a>
-                        If you have not requested password reset, please ignore this mail.
-                        </p>`
-                  })
-                   console.log(`${BASE_URL}/resetPassword/${token}`)
-                  res.json({ "message": `Check your mail, we have sent an email to ${user.email}` })
+                    to: user.email,
+                    from: SERVER_EMAIL,
+                    subject: "An-Instagram: Password reset request - An Instagram Clone",
+                    text:".",
+                    html: `<p>You have requested a password reset, 
+                    <a href="${BASE_URL}/resetPassword/${token}">click here to reset your password</a>
+                    If you have not requested password reset, please ignore this mail.
+                    </p>`
+                  }).then(result => {
+                       console.log(`${BASE_URL}:${SERVER_PORT}/resetPassword/${token}`)
+                       res.json({ "message": `Check your mail, we have sent an email to ${user.email}` })
+                  }).catch(error => {
+                       res.json({ "error": `Error occurred: ${error},  please try again later` });
+                   })
+
                });
          })
    })

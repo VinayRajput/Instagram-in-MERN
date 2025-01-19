@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { UserContext } from "../../App";
-import Util from '../../Utils';
-import M from 'materialize-css'
+import * as Util from '../../shared/Utils';
+import M from 'materialize-css';
+import axiosInstance from '../../services/axios';
 
 const Profile = () => {
    const [profileData, setProfileData] = useState([]);
@@ -9,15 +10,11 @@ const Profile = () => {
    useEffect(() => {
       const abortController = new AbortController();
       const signal = abortController.signal;
-      fetch("/myPosts", {
-         signal: signal,
-         headers: {
-            "Authorization": "Bearer " + localStorage.getItem("jwt")
-         }
-      }).then(r => r.json())
-         .then((data) => {
-            console.log(data.myPosts);
-            setProfileData(data.myPosts);
+      axiosInstance.get("/myPosts", {
+         signal: signal
+      }).then((data) => {
+            console.log(data?.data?.myPosts);
+            setProfileData(data?.data?.myPosts);
          })
 
       return function cleanUp () {
@@ -26,23 +23,18 @@ const Profile = () => {
    }, []);
 
    const updatePic = (file) => {
-      Util.uploadPic(file, (response) => {
+      Util.uploadPic(file, ({data:{url}}) => {
          const newState = {
             ...state,
-            userPic: response.url
+            userPic: url
          }
+         console.log('newState',newState);
          dispatch({ type: "UPDATE", payload:newState});
-         fetch("/updatePicUrl",{
-            method:"POST",
-            headers:{
-               "Content-Type":"application/json",
-               "Authorization":"Bearer "+localStorage.getItem("user")
-            },
-            body:JSON.stringify({id:state.id, userPic:response.url})
-         })
-         .then(res=>res.json())
-         .then(res=>{
-           M.toast({html:res.message, classes: "#a5d6a7 green lighten-3" });
+         axiosInstance.post("/updatePicUrl",
+             {id:state.id, userPic:url}
+         )
+         .then(({data:{message}})=>{
+           M.toast({html:message, classes: "#a5d6a7 green lighten-3" });
          });
       });
    }
@@ -54,7 +46,7 @@ const Profile = () => {
                <div className="row">
                   <div className="col s4 center  ">
                      <div className="card-image profile ">
-
+                        {console.log('state',state)}
                         <img alt="" src={(state && state.userPic) ? state.userPic : ""} />
                      </div>
                      <div className="updatePicButton">

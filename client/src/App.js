@@ -13,22 +13,22 @@ import Following from './components/screens/Following';
 import ResetPassword from './components/screens/ResetPassword';
 import ChangePassword from './components/screens/ChangePassword';
 import ConfirmEmail from './components/screens/ConfirmEmail';
+import {ACTION_USER, USER} from "./shared/AppConstants";
 
+window.env = process.env
 
 export const UserContext = createContext();
-
 
 const Routing = () => {
   const history = useHistory();
   const { dispatch } = useContext(UserContext)
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem(USER));
     if (user) {
-      //history.push("/");
-      dispatch({ type: "USER", payload: user });
-      console.log(user);
+      // history.push("/");
+      dispatch({ type: ACTION_USER, payload: user });
     } else if(!history.location.pathname.startsWith('/reset')){
-      //history.push("/login");//
+      history.push("/login");
     }
   }, [dispatch, history.location.pathname]);
 
@@ -47,6 +47,7 @@ const Routing = () => {
 }
 function App () {
   const [state, dispatch] = useReducer(reducer, initialState);
+
   return (
     <UserContext.Provider value={{ state, dispatch }}>
       <BrowserRouter>

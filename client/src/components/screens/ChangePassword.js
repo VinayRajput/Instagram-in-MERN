@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import M from 'materialize-css';
-import Util from '../../Utils';
+import * as Util from '../../shared/Utils';
 import { useParams, useHistory } from 'react-router-dom';
+import axiosInstance from "../../services/axios";
 
 const ChangePassword = () => {
   const [password, setPassword] = useState("");
@@ -17,9 +18,8 @@ const ChangePassword = () => {
       return M.toast({ html: "Repeat password does not match", classes: "red lighten-1" })
     }
     const Data = JSON.stringify({ token: token, password: password });
-    Util.postMethod("/changePassword", Data)
-    .then(res => res.json())
-    .then(data => { 
+    axiosInstance.post("/changePassword", Data)
+    .then(data => {
       if (data.error) {
         return M.toast({ html: `Error occurred: ${data.error}`, classes: "red lighten-1" });
       }
