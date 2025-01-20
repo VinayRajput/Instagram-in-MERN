@@ -1,0 +1,21 @@
+RewriteEngine On
+
+# Handle requests for the React app
+RewriteBase /
+
+# Redirect all requests to index.html if the file does not exist
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+# Passenger configuration for Node.js (if applicable)
+PassengerAppRoot "/home/easyeco1/an-instagram-app/server"
+PassengerBaseURI "/api"
+PassengerNodejs "/home/easyeco1/nodevenv/an-instagram-app/server/20/bin/node"
+PassengerAppType node
+PassengerStartupFile app.js
+
+# Redirect all requests under /api to the Node.js app
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ http://127.0.0.1:3001/api/$1 [P,L]

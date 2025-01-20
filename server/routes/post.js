@@ -51,9 +51,9 @@ Router.post(`/createPost`, authenticateUser, (req, res) => {
       title,
       body,
       photo: pic,
-      postedBy: req.user
+      postedBy: req?.user
    })
-   post.save()
+   post?.save()
       .then(result => {
          res.json(result)
       })
@@ -78,7 +78,7 @@ Router.put(`/toggleLike`, authenticateUser, (req, res) => {
 
             // If req.body.like is true, add user ID to likes
             if (req.body.like === true) {
-                if (!post.likes.includes(req.user._id))
+                if (!post?.likes.includes(req.user._id))
                     post.likes.push(req.user._id);
             }
             return post.save()
@@ -93,25 +93,14 @@ Router.put(`/toggleLike`, authenticateUser, (req, res) => {
         });
     });
 
-    Router.delete(`/delete/:postId`, authenticateUser, (req, res) => {
-        Post.findOne({_id: req.params.postId})
-            .populate("postedBy", "_id name")
-            .exec()
-            .then((err, post) => {
-                if (err || !post) {
-                    res.status(422).json({error: err});
-                }
-                console.log('delete post',post);
-                if (post.postedBy._id.toString() === req.user._id.toString()) {
-                    post.remove()
-                        .then(result => {
-                            res.json({"status": "success", "message": "Successfully deleted"});
-                        })
-                        .catch(e => {
-                            console.log(e);
-                        })
-                }
-            })
+    Router.delete(`/delete/:postId`, authenticateUser, async (req, res) => {
+        try {
+            await Post.deleteOne({_id: req.params.postId});
+            res.json({"status": "success", "message": "Successfully deleted"});
+        } catch (e){
+            console.log(e);
+            res?.status(500).send({"error": e});
+        }
     })
 
     Router.put("/comment", authenticateUser, (req, res) => {

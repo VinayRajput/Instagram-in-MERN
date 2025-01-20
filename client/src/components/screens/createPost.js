@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import M from 'materialize-css';
 import {useHistory} from 'react-router-dom';
-import * as Util from '../../shared/Utils';
-import {ACCESS_TOKEN, CLOUDINARY_UPLOAD_URL} from "../../shared/AppConstants";
+import { CLOUDINARY_UPLOAD_URL} from "../../shared/AppConstants";
 import axiosInstance, {axiosOnly} from "../../services/axios";
 
 const CreatePost = () => {

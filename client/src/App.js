@@ -30,7 +30,7 @@ const Routing = () => {
     } else if(!history.location.pathname.startsWith('/reset')){
       history.push("/login");
     }
-  }, [dispatch, history.location.pathname]);
+  }, [dispatch, history]);
 
   return (<Switch>
     <Route path="/" exact component={Home} />
