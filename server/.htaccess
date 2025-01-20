@@ -1,0 +1,18 @@
+#RewriteEngine On
+#
+## Passenger configuration for Node.js
+#PassengerAppRoot "/home/easyeco1/an-instagram-app/server"
+#PassengerBaseURI "/"
+#PassengerNodejs "/home/easyeco1/nodevenv/an-instagram-app/server/20/bin/node"
+#PassengerAppType node
+#PassengerStartupFile app.js
+#
+## Redirect all requests under /api to Node.js app
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^api/(.*)$ http://127.0.0.1:3001/api/$1 [P,L]
+#
+## Optional: Redirect all other requests to the React app if needed
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]  # Adjust this if your React app runs on a different port

@@ -86,7 +86,7 @@ const Home = () => {
             if (!!result?.error) {
                M.toast({ html: `Error Occurred: ${result.error}` })
             } else {
-               M.toast({ html: result.message });
+               M.toast({ html: result?.data?.message });
                const newData = listing.filter(item => {
                   return (item._id !== id)
                })

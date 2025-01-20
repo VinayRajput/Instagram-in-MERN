@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import M from 'materialize-css';
-import * as Util from '../../shared/Utils';
 import { useParams, useHistory } from 'react-router-dom';
 import axiosInstance from "../../services/axios";
 
