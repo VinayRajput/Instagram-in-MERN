@@ -12,7 +12,7 @@ require("./models/post");
 
 log4js.configure({
     appenders: { fileAppender: { type: 'file', filename: 'logs/stdout.log' } },
-    categories: { default: { appenders: ['fileAppender'], level: 'error' } }
+    categories: { default: { appenders: ['fileAppender'], level: 'info' } }
 });
 // const logger = {...log4js.getLogger(), info : (msg)=>{ console.log(msg); log4js.getLogger().info(msg); }};
 const logger = log4js.getLogger();
@@ -24,7 +24,7 @@ console.log = (msg)=>{
 
 mongoose.connect(MONGOURI, {})
     .then(connection=>{
-        logger.info('Connected to mongodb')
+        logger.info(`Connected to mongodb: ${connection}`)
     });
 
 mongoose.connection.on('error',(er)=>{
