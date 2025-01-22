@@ -118,13 +118,13 @@ Router.put(`/toggleLike`, authenticateUser, (req, res) => {
             .populate("comments.postedBy", "_id name")
             .populate("postedBy", "_id name email")
             .exec()
-            .then((err, result) => {
-                if (err) {
-                    return res.status(422).json({error: err})
-                }
+            .then((result) => {
                 //console.log(result);
                 result.comments.reverse();
                 return res.json(result);
+            })
+            .catch(err => {
+                return res.status(422).json({error: err});
             });
     });
 module.exports = Router;

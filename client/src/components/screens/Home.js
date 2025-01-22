@@ -53,18 +53,15 @@ const Home = () => {
          return M.toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
       }
 
-      axiosInstance.get("/comment", {
-         method: "PUT",
-         body: JSON.stringify({
+      axiosInstance.put("/comment", {
             postId: postId,
             text: textField.value
          })
-      })
          .then((result) => {
             const newData = listing.map(item => {
                if (item._id === result?.data?._id) {
                   textField.value = "";
-                  return result;
+                  return {...item, comments:result.data.comments };
                } else {
                   return item;
                }
@@ -102,7 +99,7 @@ const Home = () => {
    const showListings = () => {
       if (!!listing.length) {
          return (
-             listing.length && listing.map((item, key) => {
+             listing.length && listing.map((item) => {
                return (
                   <div className="card col s12 m6 home-card" key={item._id}>
                      <div className="card home-card">

@@ -11,7 +11,7 @@ const ConfirmEmail = () => {
     const data = JSON.stringify({token:token});
     axiosInstance.post("/emailConfirmation",data)
     .then(response=>{
-      M.toast({ html: response.message, classes: "#a5d6a7 green lighten-3" });
+      M.toast({ html: response?.data?.message, classes: "#a5d6a7 green lighten-3" });
       history.push("/login");
     })
   },[ history, token ])
