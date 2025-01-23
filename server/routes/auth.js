@@ -98,7 +98,7 @@ router.post("/signup", (req, res) => {
                              subject: "An-Instagram: Welcome to An Instagram clone",
                              from: SERVER_EMAIL,
                              html: `<h1> Welcome to An Instagram clone</h1>
-                                    <a href="${BASE_URL}/confirmEmail/${token}">Click here to confirm your email id</a>`,
+                                    <a href="${BASE_URL}${SERVER_PORT?':'+SERVER_PORT:''}/confirmEmail/${token}">Click here to confirm your email id</a>`,
                              to: email,
                              text:"An-Instagram: Welcome to An Instagram clone -- text",
                              "reply-to": "vinkrins@gmail.com"
