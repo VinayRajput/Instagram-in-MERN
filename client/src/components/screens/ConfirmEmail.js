@@ -11,7 +11,6 @@ const ConfirmEmail = () => {
     const data = JSON.stringify({token:token});
     axiosInstance.post("/emailConfirmation",data)
     .then(response=>{
-
       if(response?.data?.error)
         M.toast({ html: response?.data?.error, classes: "#a5d6a7 red lighten-3" });
       else {
@@ -20,7 +19,6 @@ const ConfirmEmail = () => {
       setTimeout(()=>{
         history.push("/login");
       },2000)
-
     })
   },[ history, token ])
 
