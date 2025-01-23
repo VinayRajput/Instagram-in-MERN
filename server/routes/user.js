@@ -63,8 +63,8 @@ Router.put("/follow", authenticateUser, (req, res) => {
   })
 })
 Router.post("/searchUser", (req, res) => {
-  let userPattern = RegExp(`^${req.body.keyword}`);
-  User.find({ email: { $regex: userPattern } })
+  let userPattern = RegExp(`^${req.body.keyword}`,'i');
+  User.find({ name: { $regex: userPattern } })
     .select("_id email name")
     .then(response => {
       return res.json({ response })

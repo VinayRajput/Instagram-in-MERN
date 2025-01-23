@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { UserContext } from "../App";
 import M from 'materialize-css';
 import * as Util from '../shared/Utils';
+import axiosInstance from "../services/axios";
 const NavBar = () => {
   const { state, dispatch } = useContext(UserContext);
   const history = useHistory()
@@ -11,13 +12,13 @@ const NavBar = () => {
   const [keyword, setKeyword] = useState("");
   const [userResults, setUserResults] = useState([]);
   useEffect(() => {
-    const instance = M.Modal.init(userSearchModal.current);
+    const instance = M.Modal.init(userSearchModal?.current);
     setModalInstance(instance);
   }, [])
   const renderList = () => {
     if (state) {
       return [
-        <li key="0"><i data-target="model-user-search" className="large material-icons modal-trigger black-text">search</i></li>,
+        <li key="0"><i data-target="model-user-search" className="large material-icons modal-trigger black-text pointer">search</i></li>,
         <li key="1"><Link to="/profile">Profile</Link></li>,
         <li key="2"><Link to="/createPost">Create Post</Link></li>,
         <li key="3">
@@ -48,9 +49,9 @@ const NavBar = () => {
     setKeyword(keyword);
     if(keyword === "") return setUserResults(keyword) 
     
-    Util.postMethod("/searchUser", data)
-      .then(users => {
-        setUserResults(users.response);
+    axiosInstance.post("/searchUser", data)
+      .then(res => {
+        setUserResults(res?.data.response);
       })
   }
   return (<nav>

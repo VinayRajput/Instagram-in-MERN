@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
     withCredentials:true,
     timeout:10000,
     validateStatus: status => {
-        return (status >=200 && status <=299) || status === 404;
+        return (status >=200 && status <=299) || status === 404 || status === 422;
     }
 })
 
