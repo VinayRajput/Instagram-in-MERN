@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../../App';
-import M from 'materialize-css';
+import { toast } from 'react-toastify';
 import axiosInstance from '../../services/axios';
 
 
@@ -17,7 +17,12 @@ const Home = () => {
       })
       .then((data) => {
             setListing(data?.data?.posts||[]);
-         })
+            toast('All Posts Loaded',{
+               autoClose: 3000,
+               type: "info"
+            });
+
+      })
       return function cleanUp () {
          abortController.abort()
       }
@@ -25,7 +30,7 @@ const Home = () => {
 
    const toggleLike = (id, postedBy, obj) => {
       if(!state){
-         return M.toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
+         return toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
       }
       let toggled = (obj.dataset.liked !== "true");
       axiosInstance.put("/toggleLike", {
@@ -50,7 +55,7 @@ const Home = () => {
 
    const makeComment = (textField, postId) => {
       if(!state){
-         return M.toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
+         return toast({ html: "Please signup / login to like or comment", classes: "#ef5350 red lighten-1" });
       }
 
       axiosInstance.put("/comment", {
@@ -69,7 +74,7 @@ const Home = () => {
             setListing(newData);
          })
          .catch(e => {
-            M.toast({ html: "Some error occurred, please try again.", classes: "#ef5350 red lighten-1" });
+            toast({ html: "Some error occurred, please try again.", classes: "#ef5350 red lighten-1" });
             console.log(e)
          })
    }
@@ -81,9 +86,9 @@ const Home = () => {
       })
          .then(result => {
             if (!!result?.error) {
-               M.toast({ html: `Error Occurred: ${result.error}` })
+               toast({ html: `Error Occurred: ${result.error}` })
             } else {
-               M.toast({ html: result?.data?.message });
+               toast({ html: result?.data?.message });
                const newData = listing.filter(item => {
                   return (item._id !== id)
                })
@@ -92,7 +97,7 @@ const Home = () => {
 
          })
          .catch(e => {
-            M.toast({ html: `Error Occurred: ${e}` })
+            toast({ html: `Error Occurred: ${e}` })
          })
    }
 

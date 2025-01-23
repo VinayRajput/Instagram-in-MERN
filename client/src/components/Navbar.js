@@ -2,7 +2,8 @@ import React, { useContext, useRef, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { UserContext } from "../App";
 import M from 'materialize-css';
-import * as Util from '../shared/Utils';
+import {ToastContainer} from "react-toastify";
+import axiosInstance from "../services/axios";
 const NavBar = () => {
   const { state, dispatch } = useContext(UserContext);
   const history = useHistory()
@@ -53,7 +54,9 @@ const NavBar = () => {
         setUserResults(users.response);
       })
   }
-  return (<nav>
+  return (
+      <>
+        <nav>
     <div className="nav-wrapper">
       <Link to="/" className="brand-logo">Instagram</Link>
       <ul id="nav-mobile" className="right hide-on-down">
@@ -91,6 +94,21 @@ const NavBar = () => {
         }}>Close</button>
       </div>
     </div>
-  </nav>)
+  </nav>
+    <ToastContainer
+        position="top-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition="Bounce"
+    />
+  </>
+  )
 }
 export default NavBar;

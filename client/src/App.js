@@ -14,6 +14,7 @@ import ResetPassword from './components/screens/ResetPassword';
 import ChangePassword from './components/screens/ChangePassword';
 import ConfirmEmail from './components/screens/ConfirmEmail';
 import {ACTION_USER, USER} from "./shared/AppConstants";
+import "react-toastify/ReactToastify.min.css";
 
 window.env = process.env
 
